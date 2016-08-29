@@ -7,6 +7,14 @@ def onMouse(event, x, y, flags, param):
         value = 'H('+str(hsv[y,x][0])+') S('+str(hsv[y,x][1])+') V('+str(hsv[y,x][2])+')'
         print(value)
 
+def draw_str(dst, target, s):
+    x, y = target
+    cv2.putText(dst, s, (x+1, y+1), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 0, 0), thickness = 2, lineType=cv2.LINE_AA)
+    cv2.putText(dst, s, (x, y), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), lineType=cv2.LINE_AA)
+
+def clock():
+    return cv2.getTickCount() / cv2.getTickFrequency()
+
 cap = cv2.VideoCapture(0)
 width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
 height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -23,6 +31,7 @@ cv2.namedWindow('frame')
 cv2.setMouseCallback('frame', onMouse)
 while True:
     res, frame = cap.read()
+    t = clock()
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lowerYellow, upperYellow)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, None,iterations=2)
@@ -40,6 +49,8 @@ while True:
                 pointsSub.append((int(x),int(y)))
                 for i in range(1, len(pointsSub)):
                     cv2.line(frame, pointsSub[i-1], pointsSub[i], (127,0,255), 2)
+    dt = clock() - t
+    draw_str(frame, (20, 20), 'time: %.1f ms' % (dt*1000))
     cv2.imshow('frame', frame)
     cv2.imshow('res', res)
     key = cv2.waitKey(5) & 0xff
