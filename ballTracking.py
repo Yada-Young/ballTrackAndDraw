@@ -7,7 +7,7 @@ def onMouse(event, x, y, flags, param):
         value = 'H('+str(hsv[y,x][0])+') S('+str(hsv[y,x][1])+') V('+str(hsv[y,x][2])+')'
         print(value)
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
 height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 videoFrame = cv2.VideoWriter('frame.avi', cv2.VideoWriter_fourcc('M','J','P','G'), 25, (int(width),int(height)), True)
@@ -25,8 +25,7 @@ while True:
     res, frame = cap.read()
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lowerYellow, upperYellow)
-    mask = cv2.erode(mask, None, iterations=2)
-    mask = cv2.dilate(mask, None, iterations=2)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, None,iterations=2)
     res = cv2.bitwise_and(frame, frame, mask=mask)
     im, contours, hierarchy = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for p in points:
